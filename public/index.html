@@ -1,0 +1,76 @@
+<!DOCTYPE html> 
+<html> 
+  <head> 
+  <title>Page Title</title> 
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1"> 
+
+  <link rel="stylesheet" href="http://code.jquery.com/mobile/1.0rc2/jquery.mobile-1.0rc2.min.css" />
+  <script type="text/javascript" src="http://code.jquery.com/jquery-1.6.4.min.js"></script>
+  <script type="text/javascript" src="http://code.jquery.com/mobile/1.0rc2/jquery.mobile-1.0rc2.min.js"></script>
+  <script type="text/javascript" src="/js/index.js"></script>
+    <style>
+      [data-role=footer]{bottom:0; position:absolute !important; top: auto !important;}
+    </style>
+</head> 
+
+<body> 
+<div data-role="page" id="main">
+
+  <div data-role="header">
+    <h1>Dem Musics!</h1>
+  </div>
+
+  <div data-role="content" class="ui-grid-c">
+    <div class="ui-block-a" id="now-playing">
+      <div class='title'></div>
+      <div class='artist'></div>
+      <div class='album'></div>
+      <div>
+        <span class='time'></span>/<span class='length'></span>
+      </div>
+      <div data-role="controlgroup"  data-type="horizontal">
+        <button data-icon="arrow-l" data-iconpos="left" data-theme="c" id="prev">Prev</button>
+        <button data-icon="arrow-r" data-iconpos="left" data-theme="c" id="next">Next</button>
+        <button data-icon="grid"    data-iconpos="left" data-theme="c" id="play">Play</button>
+      </div>
+      <div data-role="controlgroup"  data-type="horizontal" style="font-size: 80%">
+        <button id="random">Random</button>
+        <button id="repeat">Repeat</button>
+      </div>
+    </div>
+    <div class="ui-block-b" style="margin-right: 7%; width: 60%; float: right">
+     
+      <form id="search"><input type="search" name="search"  value="" placeholder="Search for music"/></form>
+      <ul data-role="listview" data-theme="c" data-inset="true" id="results">
+      </ul>
+    </div>
+    <div class="ui-block-a" style="margin-top: 32px; float: left">
+      <ul data-role="listview" data-theme="c" data-dividertheme="a" data-split-theme="c" data-filter="true" data-inset="true" data-split-icon="delete" id="playlist">
+      </ul>
+    </div>
+
+  </div>
+  <div data-role="footer">
+    <h4>Page Footer</h4>
+  </div>
+</div>
+
+
+<div data-role="page" id="bar">
+
+  <div data-role="header">
+    <h1>Bar</h1>
+  </div>
+
+  <div data-role="content"> 
+    <p>I'm first in the source order so I'm shown as the page.</p>    
+    <p><a href="#foo">Back to foo</a></p> 
+  </div>
+
+  <div data-role="footer">
+    <h4>Page Footer</h4>
+  </div>
+</div>
+</body>
+</html>

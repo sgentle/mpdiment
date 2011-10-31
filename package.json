@@ -1,0 +1,20 @@
+{
+	"name": "mpdiment",
+	"version": "0.0.0",
+	"description": "nodejs mpd frontend",
+	"main": "index.js",
+	"dependencies": {
+		"coffee-script": "> 1.1.0",
+		"express": ">= 1.5.0",
+		"connect-assets": "~1.0.0",
+		"mpd-rest": "*"
+	},
+	"licenses": [{
+		"type": "BSD",
+		"url": "http://www.freebsd.org/copyright/freebsd-license.html"
+	}],
+	"repository": {
+		"type": "git",
+		"url": "http://github.com/sgentle/mpdiment.git"
+	}
+}
