@@ -10,7 +10,15 @@
   <script type="text/javascript" src="http://code.jquery.com/mobile/1.0rc2/jquery.mobile-1.0rc2.min.js"></script>
   <script type="text/javascript" src="/js/index.js"></script>
     <style>
-      [data-role=footer]{bottom:0; position:absolute !important; top: auto !important;}
+      [data-role=footer]{bottom:0; position:absolute !important; top: auto !important; z-index: 5;}
+      li.ui-li-divider > div.ui-btn { position:absolute;right:2px; top: 2px; font-size: 70%; margin: 0; } 
+      #results li.ui-li-divider { padding-right: 100px; } 
+      #playlist li.ui-li-divider span.ui-icon { margin-left: 2px; } 
+      #playlist li.ui-li-divider { padding-right: 48px; } 
+      #playlist div.ui-btn { width: 28px; right: 7px; background: none; border: none; box-shadow: none; -webkit-box-shadow: none; -moz-box-shadow: none;}
+      #playlist .ui-btn-inner { border: none;}
+
+      #now-playing h2 .ui-btn { font-size: 45%; float: right; position: relative; top: -16px; right: -14px;}
     </style>
 </head> 
 
@@ -18,11 +26,11 @@
 <div data-role="page" id="main">
 
   <div data-role="header">
-    <h1>Dem Musics!</h1>
+    <h1>MPDiment</h1>
   </div>
 
   <div data-role="content" class="ui-grid-c">
-    <div class="ui-block-a" id="now-playing">
+    <div class="ui-block-a" id="current-song">
       <div class='title'></div>
       <div class='artist'></div>
       <div class='album'></div>
@@ -31,8 +39,8 @@
       </div>
       <div data-role="controlgroup"  data-type="horizontal">
         <button data-icon="arrow-l" data-iconpos="left" data-theme="c" id="prev">Prev</button>
-        <button data-icon="arrow-r" data-iconpos="left" data-theme="c" id="next">Next</button>
-        <button data-icon="grid"    data-iconpos="left" data-theme="c" id="play">Play</button>
+        <button data-icon="false"    data-iconpos="left" data-theme="c" id="play">Play</button>
+        <button data-icon="arrow-r" data-iconpos="right" data-theme="c" id="next">Next</button>
       </div>
       <div data-role="controlgroup"  data-type="horizontal" style="font-size: 80%">
         <button id="random">Random</button>
@@ -40,20 +48,25 @@
       </div>
     </div>
     <div class="ui-block-b" style="margin-right: 7%; width: 60%; float: right">
-     
       <form id="search"><input type="search" name="search"  value="" placeholder="Search for music"/></form>
       <ul data-role="listview" data-theme="c" data-inset="true" id="results">
       </ul>
     </div>
-    <div class="ui-block-a" style="margin-top: 32px; float: left">
-      <ul data-role="listview" data-theme="c" data-dividertheme="a" data-split-theme="c" data-filter="true" data-inset="true" data-split-icon="delete" id="playlist">
-      </ul>
+    <div class="ui-block-a" style="float: left; margin-top:32px">
+      <div class='ui-bar-c ui-corner-all' style="padding:8px" id="now-playing">
+        <h2 class="ui-title" style="margin:8px 6px">Now Playing<button data-inline="true" id='clear-playlist'>Clear</button></h2>
+        <div style="margin-top: 24px;">
+          <ul data-role="listview" data-theme="c" data-dividertheme="a" data-split-theme="c"
+              data-filter="true" data-inset="true" data-split-icon="delete" id="playlist">
+          </ul>
+        </div>
+      </div>
     </div>
 
   </div>
-  <div data-role="footer">
+  <!--<div data-role="footer">
     <h4>Page Footer</h4>
-  </div>
+  </div>-->
 </div>
 
 

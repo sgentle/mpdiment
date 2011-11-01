@@ -3,29 +3,59 @@ timeFormat = (s) ->
   
   "#{zeroPad Math.floor s/60 }:#{zeroPad Math.floor s%60}"
 
+escapeAttr = (attr) -> attr.replace /"/g, "&quot;"
+
 $(document).ready ->
 
   $.ajaxSetup contentType: 'application/json', processData: false
 
 
   time = 0
+  playing = false
   anchor = new Date
   setInterval ->
     if playing
-      $('#now-playing .time').html timeFormat parseFloat(time) + (new Date - anchor)/1000
+      $('#current-song .time').html timeFormat parseFloat(time) + (new Date - anchor)/1000
   , 1000
+
+  currentId = null
+
+  songDisplay = (artist, album, title) ->
+    $('#current-song .artist').html artist
+    $('#current-song .album').html album
+    $('#current-song .title').html title
 
   update = ->
     $.ajax '/songs/current', success: (song) ->
-      $('#now-playing .artist').html "#{song.Artist}"
-      $('#now-playing .album').html "#{song.Album}"
-      $('#now-playing .title').html "#{song.Title}"
-      $('#now-playing .length').html timeFormat song.Time
+      
+      if song.Title
+        songDisplay song.Artist, song.Album, song.Title
+      else if song.file
+        path = song.file.split('/')
+        songDisplay "", path[path.length-2], path[path.length-1]
+      else
+        songDisplay "Nothing Playing", "", ""        
+        $('#current-song .length').html ""
+        playing = false
+
+      # Clear old highlight
+      $('#playlist li.track').removeClass('ui-btn-up-e')
+      $('#playlist li.track a').removeClass('ui-btn-up-e')
+      
+      currentId = song.Id
+
+      if song.Id
+        $("#playlist li[data-id=#{song.Id}]").addClass('ui-btn-up-e')
+        $("#playlist li[data-id=#{song.Id}] a").addClass('ui-btn-up-e')
+
+        $('#current-song .length').html timeFormat song.Time
+
+
 
     $.ajax '/time', success: (newTime) ->
       time = newTime
       anchor = new Date    
-      $('#now-playing .time').html timeFormat time
+      $('#current-song .time').html timeFormat time
 
   setInterval update, 5000
   update()
@@ -44,7 +74,6 @@ $(document).ready ->
     $.ajax '/repeat', success: (repeat) ->
       active $('#repeat').parent(), repeat
 
-  playing = false
   updatePlay = ->
     el = $('#play').parent().find('.ui-btn-text')
     $.ajax '/playing', success: (_playing) ->
@@ -110,6 +139,38 @@ $(document).ready ->
       console.log "OK!"
       updateSongs()
 
+  $('#clear-playlist').click (ev) ->
+    ev.preventDefault()
+    $.ajax "/songs", type: 'DELETE', success: ->
+      console.log "OK!"
+      updateSongs()
+
+
+  delayID = null
+  delayedUpdate = ->
+    clearTimeout delayID
+    delayID = setTimeout updateSongs, 200
+
+  $('.addalbum').live 'click', (ev) ->    
+    album = $(ev.target).parents('li').data('album')
+    $("#results a[data-album='#{album}']").each (i, el) ->
+      file = $(el).data('file')
+
+      $.ajax '/songs/', type: 'POST', data: JSON.stringify({file}), success: ->
+        console.log "added song"
+        delayedUpdate()
+
+
+  $('.delalbum').live 'click', (ev) ->    
+    album = $(ev.target).parents('li').data('album')
+    $("#playlist li.track[data-album='#{album}']").each (i, el) ->
+      id = $(el).data('id')
+      
+      console.log "deleting", id, el
+      $.ajax "/songs/#{id}", type: 'DELETE', success: ->
+          console.log "deleted song", id
+          delayedUpdate()
+
 
   $('#search').submit (ev) ->
     ev.preventDefault()
@@ -122,21 +183,35 @@ $(document).ready ->
       el = $('#results')
       el.html('')
       el.listview 'refresh'
+
       album = null
 
       for song in songs when song.file
+        if !song.Album
+          path = song.file.split('/')
+          song.Album = path[path.length-2] unless song.Album
+          file = path[path.length-1]
+
+
         if song.Album isnt album
-          el.append "<li data-role='list-divider' data-icon='plus'>
-            #{song.Artist} &mdash; #{song.Album}
+          row = song.Album
+          row = "#{song.Artist} &mdash; #{row}" if song.Artist
+          el.append "<li data-role='list-divider' data-album='#{escape song.Album}'>
+            <span>#{row}</span>
+            <button data-icon='plus' data-inline='true' class='addalbum'>Album</button>
           </li>"
           album = song.Album
           
-        el.append "<li data-icon='plus'><a data-file='#{song.file}'>
-          #{song.Track?.match(/^\d+/)[0]}. #{song.Title}
+        if song.Title?
+          row = "#{song.Track?.match(/^\d+/)[0] or '??'}. #{song.Title}"
+        else
+          row = "#{file}"
+        el.append "<li data-icon='plus'><a href='#' data-file=\"#{escapeAttr song.file}\" data-album='#{escape song.Album}'>
+          #{row}
         </a></li>"
 
       el.listview 'refresh'
-      
+      el.find('button').button()
 
 
 
@@ -149,15 +224,28 @@ $(document).ready ->
       album = null
 
       for song in songs when song.Id
+        if !song.Album
+          path = song.file.split('/')
+          song.Album = path[path.length-2] unless song.Album
+          file = path[path.length-1]
+
         if song.Album isnt album
-          el.append "<li data-role='list-divider'>
-            #{song.Artist} &mdash; #{song.Album}
+          row = song.Album
+          row = "#{song.Artist} &mdash; #{row}" if song.Artist
+          el.append "<li data-role='list-divider' data-album='#{escape song.Album}'>
+            #{row}
+            <button data-icon='delete' data-inline='true' data-iconpos='notext' class='delalbum'></button>
           </li>"
           album = song.Album
           
-        el.append "<li data-icon='false' data-id='#{song.Id}'><a class='play'>
-          #{song.Track.match(/^\d+/)[0]}. #{song.Title}
+        if song.Title?
+          row = "#{song.Track?.match(/^\d+/)[0] or '??'}. #{song.Title}"
+        else
+          row = "#{file}"
+        el.append "<li class='track #{if song.Id is currentId then "ui-btn-up-e" else ''} data-icon='false' data-id='#{song.Id}' data-album='#{escape song.Album}'><a href='#' class='play'>
+          #{row}
         </a><a class='del'></a></li>"
 
       el.listview 'refresh'
+      el.find('button').button()
   updateSongs()
